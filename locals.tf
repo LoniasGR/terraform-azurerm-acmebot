@@ -207,11 +207,6 @@ locals {
         }
         } : {
         enabled = false
-        registration = {
-          client_id                  = null
-          client_secret_setting_name = null
-          open_id_issuer             = null
-        }
       }
       custom_open_id_connect_providers = {
         for provider in var.auth_settings.custom_open_id_connect_providers : provider.name => {
