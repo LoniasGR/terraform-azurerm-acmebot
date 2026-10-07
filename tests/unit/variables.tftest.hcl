@@ -569,14 +569,15 @@ run "auth_settings_requires_client_secret" {
   variables {
     auth_settings = {
       enabled = true
-      active_directory = {
+      microsoft_entra = {
         client_id            = "00000000-0000-0000-0000-000000000000"
+        client_secret        = null
         tenant_auth_endpoint = "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/v2.0"
       }
     }
   }
 
-  expect_failures = [var.auth_settings_client_secret]
+  expect_failures = [var.auth_settings]
 }
 
 run "system_assigned_disabled_requires_storage_identity" {

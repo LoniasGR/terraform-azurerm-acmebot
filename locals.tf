@@ -160,12 +160,12 @@ locals {
     } : {},
   )
 
-  auth_ad_app_settings = var.auth_settings != null && var.auth_settings.active_directory != null && var.auth_settings.active_directory.enabled ? {
-    "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET" = var.auth_settings_client_secrets.microsoft_entra
+  auth_ad_app_settings = var.auth_settings != null && var.auth_settings.microsoft_entra != null ? {
+    "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET" = var.auth_settings.microsoft_entra.client_secret
   } : {}
 
   auth_custom_oidc_app_settings = var.auth_settings != null && var.auth_settings.custom_open_id_connect_providers != null && length(var.auth_settings.custom_open_id_connect_providers) > 0 ? {
-    for provider in var.auth_settings.custom_open_id_connect_providers : "${provider.name}_AUTHENTICATION_SECRET" => var.auth_settings_client_secrets.custom_open_id_connect_providers[provider.name]
+    for name, provider in var.auth_settings.custom_open_id_connect_providers : "${name}_AUTHENTICATION_SECRET" => provider.client_secret
   } : {}
 
   auth_app_settings = merge(
@@ -195,15 +195,15 @@ locals {
   auth_settings_v2 = var.auth_settings != null ? {
     auth_enabled                  = var.auth_settings.enabled
     require_authentication        = var.auth_settings.enabled
-    redirect_to_provider          = var.auth_settings.default_provider
+    redirect_to_provider          = var.auth_settings.default_provider == "microsoft_entra" ? "azureactivedirectory" : var.auth_settings.default_provider
     unauthenticated_client_action = "RedirectToLoginPage"
     identity_providers = {
-      azure_active_directory = (var.auth_settings.active_directory != null && var.auth_settings.active_directory.enabled) ? {
+      azure_active_directory = (var.auth_settings.microsoft_entra != null) ? {
         enabled = true
         registration = {
-          client_id                  = var.auth_settings.active_directory.client_id
+          client_id                  = var.auth_settings.microsoft_entra.client_id
           client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-          open_id_issuer             = var.auth_settings.active_directory.tenant_auth_endpoint
+          open_id_issuer             = var.auth_settings.microsoft_entra.tenant_auth_endpoint
         }
         } : {
         enabled = false
@@ -214,13 +214,13 @@ locals {
         }
       }
       custom_open_id_connect_providers = {
-        for provider in var.auth_settings.custom_open_id_connect_providers : provider.name => {
+        for name, provider in var.auth_settings.custom_open_id_connect_providers : name => {
           enabled = true
           registration = {
             client_id = provider.client_id
             client_credential = {
               method                     = "ClientSecretPost"
-              client_secret_setting_name = "${provider.name}_AUTHENTICATION_SECRET"
+              client_secret_setting_name = "${name}_AUTHENTICATION_SECRET"
             }
             open_id_connect_configuration = {
               well_known_open_id_configuration = provider.well_known_open_id_configuration
