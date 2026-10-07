@@ -192,7 +192,9 @@ locals {
     local.auth_app_settings,
   )
 
-  auth_settings_v2 = var.auth_settings != null ? {
+  # Remove nonsensitive wrapper, since the passwords (which are the sensitive values)
+  # are not included here.
+  auth_settings_v2 = nonsensitive(var.auth_settings != null ? {
     auth_enabled                  = var.auth_settings.enabled
     require_authentication        = var.auth_settings.enabled
     redirect_to_provider          = var.auth_settings.default_provider == "microsoft_entra" ? "azureactivedirectory" : var.auth_settings.default_provider
@@ -234,7 +236,7 @@ locals {
         enabled = false
       }
     }
-  } : null
+  } : null)
 
   storage_account_sku_name = "Standard_${var.storage_account.account_replication_type}"
 
