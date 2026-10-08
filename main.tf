@@ -151,7 +151,7 @@ module "this" {
     user_assigned_resource_ids = var.managed_identities.user_assigned_resource_ids
   }
 
-  auth_settings_v2 = local.auth_settings_v2
+  auth_settings_v2 = nonsensitive(local.auth_settings_v2)
 
   site_config = {
     minimum_tls_version               = "1.2"
