@@ -192,20 +192,18 @@ locals {
     local.auth_app_settings,
   )
 
-  # Remove nonsensitive wrapper, since the passwords (which are the sensitive values)
-  # are not included here.
-  auth_settings_v2 = nonsensitive(var.auth_settings != null ? {
-    auth_enabled                  = var.auth_settings.enabled
-    require_authentication        = var.auth_settings.enabled
-    redirect_to_provider          = var.auth_settings.default_provider == "microsoft_entra" ? "azureactivedirectory" : var.auth_settings.default_provider
+  auth_settings_v2 = nonsensitive(var.auth_settings) != null ? {
+    auth_enabled                  = nonsensitive(var.auth_settings.enabled)
+    require_authentication        = nonsensitive(var.auth_settings.enabled)
+    redirect_to_provider          = nonsensitive(var.auth_settings.default_provider == "microsoft_entra" ? "azureactivedirectory" : var.auth_settings.default_provider)
     unauthenticated_client_action = "RedirectToLoginPage"
     identity_providers = {
-      azure_active_directory = (var.auth_settings.microsoft_entra != null) ? {
+      azure_active_directory = nonsensitive(var.auth_settings.microsoft_entra != null) ? {
         enabled = true
         registration = {
-          client_id                  = var.auth_settings.microsoft_entra.client_id
+          client_id                  = nonsensitive(var.auth_settings.microsoft_entra.client_id)
           client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-          open_id_issuer             = var.auth_settings.microsoft_entra.tenant_auth_endpoint
+          open_id_issuer             = nonsensitive(var.auth_settings.microsoft_entra.tenant_auth_endpoint)
         }
         } : {
         enabled = false
@@ -216,16 +214,16 @@ locals {
         }
       }
       custom_open_id_connect_providers = {
-        for name, provider in var.auth_settings.custom_open_id_connect_providers : name => {
+        for name, provider in nonsensitive(var.auth_settings.custom_open_id_connect_providers) : name => {
           enabled = true
           registration = {
-            client_id = provider.client_id
+            client_id = nonsensitive(provider.client_id)
             client_credential = {
               method                     = "ClientSecretPost"
               client_secret_setting_name = "${name}_AUTHENTICATION_SECRET"
             }
             open_id_connect_configuration = {
-              well_known_open_id_configuration = provider.well_known_open_id_configuration
+              well_known_open_id_configuration = nonsensitive(provider.well_known_open_id_configuration)
             }
           }
         }
@@ -236,7 +234,7 @@ locals {
         enabled = false
       }
     }
-  } : null)
+  } : null
 
   storage_account_sku_name = "Standard_${var.storage_account.account_replication_type}"
 
