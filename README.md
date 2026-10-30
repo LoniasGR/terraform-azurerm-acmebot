@@ -975,6 +975,26 @@ object({
 
 Default: `{}`
 
+### <a name="input_storage_role_assignment_names"></a> [storage\_role\_assignment\_names](#input\_storage\_role\_assignment\_names)
+
+Description: (Optional) Overrides the names (GUIDs) of the Function App identity role assignments on the deployment storage account. Use this to adopt role assignments that already exist, since changing a role assignment name forces its replacement. Fields that are null use a deterministic generated name.
+
+- `storage_blob_data_owner` - (Optional) Name of the Storage Blob Data Owner role assignment.
+- `storage_queue_data_contributor` - (Optional) Name of the Storage Queue Data Contributor role assignment.
+- `storage_table_data_contributor` - (Optional) Name of the Storage Table Data Contributor role assignment.
+
+Type:
+
+```hcl
+object({
+    storage_blob_data_owner        = optional(string)
+    storage_queue_data_contributor = optional(string)
+    storage_table_data_contributor = optional(string)
+  })
+```
+
+Default: `{}`
+
 ### <a name="input_tags"></a> [tags](#input\_tags)
 
 Description: (Optional) Tags of the resource.

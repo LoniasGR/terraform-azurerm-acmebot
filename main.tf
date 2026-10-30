@@ -187,7 +187,7 @@ data "azapi_resource" "storage_user_assigned_identity" {
 resource "azapi_resource" "storage_account_function_app_role_assignment" {
   for_each = local.storage_role_definition_ids
 
-  name      = uuidv5("url", "${module.storage.resource_id}/roleAssignments/${each.key}/${local.storage_managed_identity_principal_id}")
+  name      = coalesce(var.storage_role_assignment_names[each.key], uuidv5("url", "${module.storage.resource_id}/roleAssignments/${each.key}/${local.storage_managed_identity_principal_id}"))
   parent_id = module.storage.resource_id
   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
 
